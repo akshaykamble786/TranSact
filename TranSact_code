@@ -1,1 +1,814 @@
+import javax.swing.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
+class User {
+    String mobileNumber;
+    String name;
+    int pin;
+    double balance;
+
+    User(String mobileNumber, String name, int pin, double balance) {
+        this.mobileNumber = mobileNumber;
+        this.name = name;
+        this.pin = pin;
+        this.balance = balance;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+
+class TranSact extends JFrame {
+    private JFrame subscriptionFrame = new JFrame("Subscriptions");
+    private JFrame rechargeFrame = new JFrame("Recharges");
+    private static Map<String, User> users = new HashMap<>();
+    private static Map<String, Double> transactionHistory = new HashMap<>();
+    private static Map<String, Map<String, Double>> mobilePlans = new HashMap<>();
+    private static Map<String, Map<String, Double>> dthPlans = new HashMap<>();
+    private static Map<String, Map<String, Double>> ottPlans = new HashMap<>();
+    private static Map<String, Map<String, Double>> newspaperPlans= new HashMap<>();
+
+    TranSact() {
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1200, 700);
+        setTitle("TranSact");
+        ImageIcon icon=new ImageIcon("tslogo.jpg");
+        setIconImage(icon.getImage());
+
+        JPanel panel = new JPanel();
+        JScrollPane scrollPane = new JScrollPane(panel); // Wrap the panel with a JScrollPane
+        add(scrollPane);
+        add(panel);
+        placeComponents(panel);
+
+        setLocationRelativeTo(null); // Center the frame
+        setVisible(true);
+       }
+
+        static {
+        Map<String, Double> jioPlans = new HashMap<>();
+        jioPlans.put("1 Month | 1GB/Day | 28 Days", 139.0);
+        jioPlans.put("3 Months | 1.5GB/Day | 55 Days", 498.0);
+        jioPlans.put("6 Months | 2GB/day | 84 Days", 789.0);
+        mobilePlans.put("Jio", jioPlans);
+
+        Map<String, Double> airtelPlans = new HashMap<>();
+        airtelPlans.put("1 Month | 1GB/Day | 28 Days", 145.0);
+        airtelPlans.put("3 Months | 1.5GB/Day | 58 Days", 478.0);
+        airtelPlans.put("6 Months | 2GB/Day | 82Days", 799.0);
+        mobilePlans.put("Airtel", airtelPlans);
+
+        Map<String, Double> viPlans = new HashMap<>();
+        viPlans.put("1 Month | 1GB/Day | 29 Days", 149.0);
+        viPlans.put("3 Months | 1.5GB/Day | 56 Days", 489.0);
+        viPlans.put("6 Months | 2GB/Day | 82 Days", 779.0);
+        mobilePlans.put("Vi", viPlans);
+    }
+
+    static {
+        Map<String, Double> videocond2hPlans = new HashMap<>();
+        videocond2hPlans.put("3 Month", 677.0);
+        videocond2hPlans.put("6 Months", 1064.0);
+        videocond2hPlans.put("12 Months", 1406.0);
+        dthPlans.put("Videocon d2h", videocond2hPlans);
+
+        Map<String, Double> airteldthPlans = new HashMap<>();
+        airteldthPlans.put("1 Month", 210.0);
+        airteldthPlans.put("3 Months", 657.0);
+        airteldthPlans.put("6 Months", 1054.0);
+        dthPlans.put("Airtel DTH", airteldthPlans);
+
+        Map<String, Double> tataskyPlans = new HashMap<>();
+        tataskyPlans.put("3 Month", 665.0);
+        tataskyPlans.put("6 Months", 1073.0);
+        tataskyPlans.put("9 Months", 1253.0);
+        dthPlans.put("Tata Sky", tataskyPlans);
+    }
+
+    static{
+        Map<String, Double> netflixPlans = new HashMap<>();
+        netflixPlans.put("1 Month", 199.0);
+        netflixPlans.put("3 Months", 652.0);
+        netflixPlans.put("6 Months", 1258.0);
+        ottPlans.put("Netflix", netflixPlans);
+
+        Map<String, Double> amazonprimevideoPlans = new HashMap<>();
+        amazonprimevideoPlans.put("1 Month", 210.0);
+        amazonprimevideoPlans.put("3 Months", 657.0);
+        amazonprimevideoPlans.put("6 Months", 1154.0);
+        ottPlans.put("Amazon Prime Video", amazonprimevideoPlans);
+
+        Map<String, Double> hbomaxPlans = new HashMap<>();
+        hbomaxPlans.put("1 Month", 220.0);
+        hbomaxPlans.put("3 Months", 666.0);
+        hbomaxPlans.put("6 Months", 1221.0);
+        ottPlans.put("HBO Max", hbomaxPlans);
+    }
+     
+    static{
+        Map<String, Double> toiPlans = new HashMap<>();
+        toiPlans.put("1 Month", 149.0);
+        toiPlans.put("3 Months", 345.0);
+        toiPlans.put("6 Months", 652.0);
+        newspaperPlans.put("Times Of India", toiPlans);
+
+        Map<String, Double> nytPlans = new HashMap<>();
+        nytPlans.put("1 Month", 201.0);
+        nytPlans.put("3 Months", 389.0);
+        nytPlans.put("6 Months", 676.0);
+        newspaperPlans.put("New York Times", nytPlans);
+
+        Map<String, Double> htPlans = new HashMap<>();
+        htPlans.put("1 Month", 137.0);
+        htPlans.put("3 Months", 299.0);
+        htPlans.put("6 Months", 610.0);
+        newspaperPlans.put("Hindustan Times", htPlans);
+    }
+
+    private void placeComponents(JPanel panel){
+
+        panel.setBackground(new Color(0x92B899));
+        panel.setLayout(new GridLayout(3, 3, 2, 2));
+        //panel.setLayout(new FlowLayout(8,1,1));
+
+        ImageIcon loginIcon = new ImageIcon("login.png");
+        ImageIcon depositIcon = new ImageIcon("deposit.png");
+        ImageIcon withdrawIcon = new ImageIcon("withdrawal.png");
+        ImageIcon sendmoneyIcon = new ImageIcon("sendmoney.png");
+        ImageIcon walletIcon= new ImageIcon("wallet.png");
+        ImageIcon subIcon = new ImageIcon("subscriptionn.png");
+        ImageIcon exitIcon = new ImageIcon("exit.png");
+        ImageIcon transIcon = new ImageIcon("transhis.png");
+        ImageIcon recIcon = new ImageIcon("rec.png");
+
+        JButton loginButton = new JButton("Login",loginIcon);
+        loginButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        loginButton.setVerticalAlignment(JLabel.BOTTOM);
+        loginButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        loginButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        loginButton.setBackground(new Color(0xA5CAA6));
+        panel.add(loginButton);
+
+        JButton depositButton = new JButton("Deposit",depositIcon);
+        depositButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        depositButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        depositButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        depositButton.setVerticalAlignment(JLabel.BOTTOM);
+        depositButton.setBackground(new Color(0xA5CAA6));
+        panel.add(depositButton);
+
+        JButton withdrawButton = new JButton("Withdraw",withdrawIcon);
+        withdrawButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        withdrawButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        withdrawButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        withdrawButton.setVerticalAlignment(JLabel.BOTTOM);
+        withdrawButton.setBackground(new Color(0xA5CAA6));
+        panel.add(withdrawButton);
+
+        JButton sendMoneyButton = new JButton("Send Money",sendmoneyIcon);
+        sendMoneyButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        sendMoneyButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        sendMoneyButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        sendMoneyButton.setVerticalAlignment(JLabel.BOTTOM);
+        sendMoneyButton.setBackground(new Color(0xA5CAA6));
+        panel.add(sendMoneyButton);
+
+        JButton walletButton = new JButton("Wallet",walletIcon);
+        walletButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        walletButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        walletButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        walletButton.setVerticalAlignment(JLabel.BOTTOM);
+        walletButton.setBackground(new Color(0xA5CAA6));
+        panel.add(walletButton);
+
+        JButton transactionHistoryButton = new JButton("Transaction History",transIcon);
+        transactionHistoryButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        transactionHistoryButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        transactionHistoryButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        transactionHistoryButton.setVerticalAlignment(JLabel.BOTTOM);
+        transactionHistoryButton.setBackground(new Color(0xA5CAA6));
+        panel.add(transactionHistoryButton);
+
+        JButton rechargeButton = new JButton("Recharge",recIcon);
+        rechargeButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        rechargeButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        rechargeButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        rechargeButton.setVerticalAlignment(JLabel.BOTTOM);
+        rechargeButton.setBackground(new Color(0xA5CAA6));
+        panel.add(rechargeButton);
+
+        JButton subscriptionButton = new JButton("Subscriptions",subIcon);
+        subscriptionButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        subscriptionButton.setVerticalTextPosition(JLabel.BOTTOM);
+        subscriptionButton.setHorizontalTextPosition(JLabel.CENTER);
+        subscriptionButton.setVerticalAlignment(JLabel.BOTTOM);
+        subscriptionButton.setBackground(new Color(0xA5CAA6));
+        panel.add(subscriptionButton);
+
+        JButton exitButton = new JButton("Exit",exitIcon);
+        exitButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        exitButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        exitButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        exitButton.setVerticalAlignment(JLabel.BOTTOM);
+        exitButton.setBackground(new Color(0xA5CAA6));
+        panel.add(exitButton);
+
+        depositButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                depositMoney();
+            }
+        });
+
+        withdrawButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                withdrawMoney();
+            }
+        });
+
+        walletButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                displayWallet();
+            }
+        });
+
+        sendMoneyButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                sendMoney();
+            }
+        });
+
+        transactionHistoryButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+               transactionHistory();
+            }
+        });
+
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                userLogin();
+            }
+        });
+
+
+        rechargeButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                displayRechargeButton();
+            }
+        });
+
+        subscriptionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                displaySubscriptionButtons();
+            }
+        });
+
+        exitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Exiting TranSact. Thank you!");
+                System.exit(0);
+            }
+        });
+    } 
+
+    private void displayRechargeButton(){
+
+        ImageIcon mobrecIcon = new ImageIcon("mobile.png");
+        ImageIcon dthIcon = new ImageIcon("television.png");
+
+        JButton mobileRechargeButton = new JButton("Mobile Recharge",mobrecIcon); 
+        mobileRechargeButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        mobileRechargeButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        mobileRechargeButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        mobileRechargeButton.setVerticalAlignment(JLabel.CENTER);
+        mobileRechargeButton.setBackground(new Color(0xA5CAA6));
+
+        JButton dthRechargeButton = new JButton("DTH Recharge",dthIcon);
+        dthRechargeButton.setFont(new Font("Montserrat",Font.PLAIN,20));
+        dthRechargeButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        dthRechargeButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        dthRechargeButton.setVerticalAlignment(JLabel.CENTER);
+        dthRechargeButton.setBackground(new Color(0xA5CAA6));
+
+        JPanel rechargePanel = new JPanel();
+        rechargePanel.add(mobileRechargeButton);
+        rechargePanel.add(dthRechargeButton);
+        rechargePanel.setLayout(new GridLayout(1,1,2,2));
+
+        rechargeFrame.getContentPane().removeAll(); // Clear previous components
+        rechargeFrame.getContentPane().add(rechargePanel);
+
+        rechargeFrame.setSize(900, 400);
+        rechargeFrame.setLayout(new GridLayout(1,1,2,2));
+        rechargeFrame.setLocationRelativeTo(null);
+        rechargeFrame.setVisible(true);
+
+        mobileRechargeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                mobileRecharge();
+            }
+        });
+
+        dthRechargeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dthRecharge();
+            }
+        });
+    }
+
+    private void displaySubscriptionButtons() {
+
+        ImageIcon ottIcon=new ImageIcon("ott.png");
+        ImageIcon newsIcon=new ImageIcon("newspaper.png");
+
+        JButton ottButton = new JButton("OTT",ottIcon);
+        ottButton.setFont(new Font("Montserrat", Font.PLAIN, 20));
+        ottButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        ottButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        ottButton.setVerticalAlignment(JLabel.CENTER);
+        ottButton.setBackground(new Color(0xA5CAA6));
+
+        JButton newspaperButton = new JButton("Newspaper",newsIcon);
+        newspaperButton.setFont(new Font("Montserrat", Font.PLAIN, 20));
+        newspaperButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        newspaperButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        newspaperButton.setVerticalAlignment(JLabel.CENTER);
+        newspaperButton.setBackground(new Color(0xA5CAA6));
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(ottButton);
+        buttonPanel.add(newspaperButton);
+        buttonPanel.setLayout(new GridLayout(1,1,2,2));
+
+        subscriptionFrame.getContentPane().removeAll(); // Clear previous components
+        subscriptionFrame.getContentPane().add(buttonPanel);
+
+        subscriptionFrame.setSize(900, 400);
+        subscriptionFrame.setLayout(new GridLayout(1,1,2,2));
+        subscriptionFrame.setLocationRelativeTo(null);
+        subscriptionFrame.setVisible(true);
+
+        ottButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+               ott();
+            }
+        });
+
+        newspaperButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+               newspaper();
+            }
+        });
+    }
+
+    private void payTune() {
+        try {
+            File audioFile = new File("apple_pay.wav"); 
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            clip.start();
+            Thread.sleep(3000);  // Sleep for 3 seconds to allow the tune to play
+            clip.close();
+
+        } catch (UnsupportedAudioFileException | LineUnavailableException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void depositMoney() {
+        String mobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+        if (users.containsKey(mobileNumber)) {
+            String amountStr = JOptionPane.showInputDialog("Enter amount to deposit:");
+            double amount = Double.parseDouble(amountStr);
+
+            User user = users.get(mobileNumber);
+            user.balance += amount;
+
+            new Thread(() -> payTune()).start();
+
+            JOptionPane.showMessageDialog(null, "Deposit successful. Updated balance: " + user.balance);
+        } else {
+            JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+        }
+    }
+
+    private void withdrawMoney() {
+        String mobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+        if (users.containsKey(mobileNumber)) {
+            String amountStr = JOptionPane.showInputDialog("Enter amount to withdraw:");
+            double amount = Double.parseDouble(amountStr);
+
+            User user = users.get(mobileNumber);
+            if (amount <= user.balance) {
+                user.balance -= amount;
+
+            new Thread(() -> payTune()).start();
+
+            JOptionPane.showMessageDialog(null, "Withdrawal successful. Updated balance: Rs " + user.balance);
+            } else {
+                JOptionPane.showMessageDialog(null, "Insufficient funds.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+        }
+    }
+
+    private void displayWallet() {
+        String mobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+        if (users.containsKey(mobileNumber)) {
+            User user = users.get(mobileNumber);
+            JOptionPane.showMessageDialog(null, "Wallet Balance: " + user.balance);
+        } else {
+            JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+        }
+    }
+
+    private void sendMoney() {
+        String senderMobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+    
+        if (users.containsKey(senderMobileNumber)) {
+            String recipientMobileNumber = JOptionPane.showInputDialog("Enter recipient's mobile number:");
+    
+            if (!users.containsKey(recipientMobileNumber)) {
+                // Code for handling recipient creation (same as before)
+    
+                JOptionPane.showMessageDialog(null, "Recipient logged in successfully.");
+            }
+    
+            int pin = Integer.parseInt(JOptionPane.showInputDialog("Enter 4-digit PIN:"));
+            User sender = users.get(senderMobileNumber);
+    
+            if (pin == sender.pin) {
+                double amount = Double.parseDouble(JOptionPane.showInputDialog("Enter amount to send:"));
+    
+                if (amount <= sender.balance) {
+                    User recipient = users.get(recipientMobileNumber);
+                    recipient.balance += amount;
+                    sender.balance -= amount;
+    
+                    String transactionKey = senderMobileNumber + "->" + recipientMobileNumber;
+                    transactionHistory.put(transactionKey, amount);
+    
+                    new Thread(() -> payTune()).start();
+    
+                    // Display receipt
+                    displayReceipt(sender.getName(), recipient.getName(), amount);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Insufficient funds.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Incorrect PIN. Money not sent.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+        }
+    }
+    
+    private void displayReceipt(String senderName, String recipientName, double amount) {
+        ImageIcon receiptIcon = new ImageIcon("success.png"); // Replace with the path to your receipt icon
+    
+        String receiptMessage = "<html><body>" +
+                "<h2>Transaction Receipt</h2>" +
+                "<p><b>Sender:</b> " + senderName + "</p>" +
+                "<p><b>Recipient:</b> " + recipientName + "</p>" +
+                "<p><b>Amount:</b> Rs " + amount + "</p>" +
+                "<p><b>Date and Time:</b> " + getCurrentDateTime() + "</p>" +
+                "</body></html>";
+    
+        JOptionPane.showMessageDialog(null, receiptMessage, "Transaction Receipt", JOptionPane.INFORMATION_MESSAGE, receiptIcon);
+    }
+    
+    private String getCurrentDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+
+    private void transactionHistory() {
+        String mobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+    
+        if (users.containsKey(mobileNumber)) {
+            User user = users.get(mobileNumber);
+            StringBuilder historyMessage = new StringBuilder("Transaction History for " + user.getName() + ":\n");
+    
+            for (Map.Entry<String, Double> entry : transactionHistory.entrySet()) {
+                String[] usersInvolved = entry.getKey().split("->");
+    
+                if (usersInvolved[0].equals(mobileNumber) || usersInvolved[1].equals(mobileNumber)) {
+                    String otherUserName = usersInvolved[0].equals(mobileNumber) ? users.get(usersInvolved[1]).getName() :
+                                           users.get(usersInvolved[0]).getName();
+    
+                    historyMessage.append(user.getName()).append(" to ").append(otherUserName)
+                            .append(": Rs ").append(entry.getValue()).append("\n");
+                }
+            }
+    
+            JOptionPane.showMessageDialog(null, historyMessage.toString());
+        } else {
+            JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+        }
+    }
+
+    private void userLogin() {
+        JTextField mobileNumberField = new JTextField();
+        JTextField nameField = new JTextField();
+        JPasswordField pinField = new JPasswordField();
+        JTextField balanceField = new JTextField();
+    
+        Object[] fields = {
+                "Mobile Number:", mobileNumberField,
+                "Name:", nameField,
+                "PIN:", pinField,
+                "Initial Balance:", balanceField
+        };
+    
+        int result = JOptionPane.showConfirmDialog(null, fields, "User Login", JOptionPane.OK_CANCEL_OPTION);
+    
+        if (result == JOptionPane.OK_OPTION) {
+            String mobileNumber = mobileNumberField.getText();
+            String name = nameField.getText();
+            int pin = Integer.parseInt(new String(pinField.getPassword()));
+            double balance = Double.parseDouble(balanceField.getText());
+    
+            User user = new User(mobileNumber, name, pin, balance);
+            users.put(mobileNumber, user);
+    
+            JOptionPane.showMessageDialog(null, "User " + name + " logged in successfully.");
+        } else {
+            JOptionPane.showMessageDialog(null, "Login cancelled.");
+        }
+    }
+    
+
+    private void mobileRecharge() {
+    String mobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+
+    JComboBox<String> serviceProviderComboBox = new JComboBox<>(mobilePlans.keySet().toArray(new String[0]));
+    JOptionPane.showMessageDialog(null, serviceProviderComboBox, "Select Service Provider", JOptionPane.QUESTION_MESSAGE);
+    String serviceProvider = serviceProviderComboBox.getSelectedItem().toString();
+
+    if (mobilePlans.containsKey(serviceProvider)) {
+        Map<String, Double> plans = mobilePlans.get(serviceProvider);
+
+        // Modify the plans map to include the duration along with the amount
+        Map<String, String> plansWithAmounts = new HashMap<>();
+        for (Map.Entry<String, Double> entry : plans.entrySet()) {
+            plansWithAmounts.put(entry.getKey() + " (" + entry.getValue() + " Rs)", entry.getKey());
+        }
+
+        JComboBox<String> plansComboBox = new JComboBox<>(plansWithAmounts.keySet().toArray(new String[0]));
+        
+        // Customize buttons for the option dialog
+        Object[] options = {"OK", "Cancel"};
+        int result = JOptionPane.showOptionDialog(null, plansComboBox, "Select Plan",
+        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        if (result == JOptionPane.YES_OPTION) {
+            String selectedPlanWithDuration = plansComboBox.getSelectedItem().toString();
+            String selectedPlan = plansWithAmounts.get(selectedPlanWithDuration);
+            double rechargeAmount = plans.get(selectedPlan);
+
+            if (users.containsKey(mobileNumber)) {
+                User user = users.get(mobileNumber);
+
+                if (rechargeAmount <= user.balance) {
+                    user.balance -= rechargeAmount;
+
+                    String transactionKey = mobileNumber + "->" + serviceProvider;
+                    transactionHistory.put(transactionKey, rechargeAmount);
+
+                    new Thread(() -> payTune()).start();
+
+                    JOptionPane.showMessageDialog(null, "Mobile recharge successful. " +
+                            "Updated balance: Rs " + user.balance + "\nRecharged for " + selectedPlanWithDuration);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Insufficient funds.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Recharge cancelled.");
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Invalid service provider.");
+    }
+  }
+
+    private void dthRecharge() {
+    String mobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+
+    JComboBox<String> dthserviceProviderComboBox = new JComboBox<>(dthPlans.keySet().toArray(new String[0]));
+    JOptionPane.showMessageDialog(null, dthserviceProviderComboBox, "Select Service Provider", JOptionPane.QUESTION_MESSAGE);
+    String dthserviceProvider = dthserviceProviderComboBox.getSelectedItem().toString();
+
+    if (dthPlans.containsKey(dthserviceProvider)) {
+        Map<String, Double> dthplans = dthPlans.get(dthserviceProvider);
+
+        // Modify the plans map to include the duration along with the amount
+        Map<String, String> dthplansWithAmounts = new HashMap<>();
+        for (Map.Entry<String, Double> entry : dthplans.entrySet()) {
+            dthplansWithAmounts.put(entry.getKey() + " (" + entry.getValue() + " Rs)", entry.getKey());
+        }
+
+        JComboBox<String> dthplansComboBox = new JComboBox<>(dthplansWithAmounts.keySet().toArray(new String[0]));
+        Object[] options = {"OK", "Cancel"};
+        int result = JOptionPane.showOptionDialog(null, dthplansComboBox, "Select Plan",
+        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        if (result == JOptionPane.YES_OPTION) {
+        String selecteddthPlanWithDuration = dthplansComboBox.getSelectedItem().toString();
+        String selecteddthPlan = dthplansWithAmounts.get(selecteddthPlanWithDuration);
+        double dthrechargeAmount = dthplans.get(selecteddthPlan);
+
+        if (users.containsKey(mobileNumber)) {
+            User user = users.get(mobileNumber);
+
+            if (dthrechargeAmount <= user.balance) {
+                user.balance -= dthrechargeAmount;
+
+                String transactionKey = mobileNumber + "->" + dthserviceProvider;
+                transactionHistory.put(transactionKey, dthrechargeAmount);
+
+                new Thread(() -> payTune()).start();
+
+                JOptionPane.showMessageDialog(null, "DTH recharge successful. " +
+                        "Updated balance: Rs " + user.balance + "\nRecharged for " + selecteddthPlanWithDuration);
+            } else {
+                JOptionPane.showMessageDialog(null, "Insufficient funds.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+        } 
+      } else{
+            JOptionPane.showMessageDialog(null, "Recharge cancelled");
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Invalid DTH service provider.");
+    }
+  }
+
+    private void ott() {
+    String mobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+
+    String[] ottServices = ottPlans.keySet().toArray(new String[0]);
+    int ottServiceIndex = JOptionPane.showOptionDialog(
+            null,
+            "Select OTT Service",
+            "Select OTT Service",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            ottServices,
+            ottServices[0]
+    );
+
+    if (ottServiceIndex != -1) {
+        String ottService = ottServices[ottServiceIndex];
+
+        Object[] plansArray = ottPlans.get(ottService).keySet().toArray();
+        String[] plans = new String[plansArray.length];
+        for (int i = 0; i < plansArray.length; i++) {
+            plans[i] = plansArray[i].toString() + " (" + ottPlans.get(ottService).get(plansArray[i]) + " Rs)";
+        }
+
+        int planIndex = JOptionPane.showOptionDialog(
+                null,
+                "Select Plan",
+                "Select Plan",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                plans,
+                plans[0]
+        );
+
+        if (planIndex != -1) {
+            String selectedPlanWithDuration = plans[planIndex];
+            String selectedPlan = ottPlans.get(ottService).keySet().toArray()[planIndex].toString();
+            double subscriptionAmount = ottPlans.get(ottService).get(selectedPlan);
+
+            if (users.containsKey(mobileNumber)) {
+                User user = users.get(mobileNumber);
+
+                if (subscriptionAmount <= user.balance) {
+                    user.balance -= subscriptionAmount;
+
+                    String subscriptionTransactionKey = mobileNumber + "->" + ottService;
+                    transactionHistory.put(subscriptionTransactionKey, subscriptionAmount);
+
+                    new Thread(() -> payTune()).start();
+
+                    JOptionPane.showMessageDialog(null, "OTT subscription successful. " +
+                            "Updated balance: Rs " + user.balance + "\nSubscribed to " + selectedPlanWithDuration);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Insufficient funds.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Subscription cancelled.");
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Invalid OTT service.");
+    }
+  }
+
+  private void newspaper() {
+    String mobileNumber = JOptionPane.showInputDialog("Enter your mobile number:");
+
+    // Get the available newspapers and prompt the user to select one
+    String[] newspapers = newspaperPlans.keySet().toArray(new String[0]);
+    int newspaperIndex = JOptionPane.showOptionDialog(
+            null,
+            "Select Newspaper",
+            "Select Newspaper",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            newspapers,
+            newspapers[0]
+    );
+
+    // Check if the user selected a newspaper
+    if (newspaperIndex != -1) {
+        String selectedNewspaper = newspapers[newspaperIndex];
+
+        // Get the subscription plans for the selected newspaper and prompt the user to select one
+        Object[] plansArray = newspaperPlans.get(selectedNewspaper).keySet().toArray();
+        String[] plans = new String[plansArray.length];
+        for (int i = 0; i < plansArray.length; i++) {
+            plans[i] = plansArray[i].toString() + " (" + newspaperPlans.get(selectedNewspaper).get(plansArray[i]) + " Rs)";
+        }
+
+        int planIndex = JOptionPane.showOptionDialog(
+                null,
+                "Select Plan",
+                "Select Plan",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                plans,
+                plans[0]
+        );
+
+        // Check if the user selected a plan
+        if (planIndex != -1) {
+            String selectedPlanWithDuration = plans[planIndex];
+            String selectedPlan = newspaperPlans.get(selectedNewspaper).keySet().toArray()[planIndex].toString();
+            double subscriptionAmount = newspaperPlans.get(selectedNewspaper).get(selectedPlan);
+
+            // Check if the user exists
+            if (users.containsKey(mobileNumber)) {
+                User user = users.get(mobileNumber);
+
+                // Check if the user has sufficient funds
+                if (subscriptionAmount <= user.balance) {
+                    user.balance -= subscriptionAmount;
+
+                    // Record the newspaper subscription transaction
+                    String subscriptionTransactionKey = mobileNumber + "->" + selectedNewspaper;
+                    transactionHistory.put(subscriptionTransactionKey, subscriptionAmount);
+
+                    // Start a thread to play a payment tune
+                    new Thread(() -> payTune()).start();
+
+                    // Display a success message
+                    JOptionPane.showMessageDialog(null, "Newspaper subscription successful. " +
+                            "Updated balance: Rs " + user.balance + "\nSubscribed to " + selectedPlanWithDuration);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Insufficient funds.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "User not found. Please login first.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Subscription cancelled.");
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Invalid newspaper selection.");
+    }
+}
+
+    public static void main(String[] args) {
+        new TranSact();
+    }
+}
